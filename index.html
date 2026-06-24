@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout Transparente</title>
+    <script src="https://mercadopago.com"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, button { width: 100%; padding: 10px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; }
+        button { background-color: #009ee3; color: white; border: none; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #007eb5; }
+    </style>
+</head>
+<body>
+
+    <h2>Finalizar Pagamento</h2>
+    <form id="form-checkout">
+        <div class="form-group">
+            <label for="form-checkout__cardNumber">Número do Cartão</label>
+            <input type="text" id="form-checkout__cardNumber" placeholder="0000 0000 0000 0000" required />
+        </div>
+        <div class="form-group">
+            <label for="form-checkout__expirationDate">Vencimento (MM/AA)</label>
+            <input type="text" id="form-checkout__expirationDate" placeholder="MM/AA" required />
+        </div>
+        <div class="form-group">
+            <label for="form-checkout__securityCode">Código de Segurança (CVC)</label>
+            <input type="text" id="form-checkout__securityCode" placeholder="123" required />
+        </div>
+        <div class="form-group">
+            <label for="form-checkout__cardholderName">Nome no Cartão</label>
+            <input type="text" id="form-checkout__cardholderName" placeholder="João Silva" required/>
+        </div>
+        <div class="form-group">
+            <label for="form-checkout__cardholderEmail">E-mail</label>
+            <input type="email" id="form-checkout__cardholderEmail" placeholder="joao@email.com" required />
+        </div>
+        <div class="form-group">
+            <label for="form-checkout__identificationNumber">CPF</label>
+            <input type="text" id="form-checkout__identificationNumber" placeholder="000.000.000-00" required />
+        </div>
+        
+        <!-- Campos ocultos preenchidos dinamicamente pelo SDK -->
+        <input type="hidden" id="form-checkout__installments" value="1" />
+        <input type="hidden" id="form-checkout__paymentMethodId" />
+        <input type="hidden" id="form-checkout__issuerId" />
+
+        <button type="submit" id="form-checkout__submit">Pagar R$ 50,00</button>
+    </form>
+
+    <script>
+        // Substitua pela sua Chave Pública (Public Key) do Mercado Pago
+        const mp = new MercadoPago('SUA_PUBLIC_KEY_DO_MERCADO_PAGO');
+
+        const formElement = document.getElementById('form-checkout');
+
+        formElement.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const expiry = document.getElementById('form-checkout__expirationDate').value.split('/');
+
+            try {
+                // 1. Cria o token do cartão de forma segura com o SDK do Mercado Pago
+                const cardToken = await mp.createCardToken({
+                    cardNumber: document.getElementById('form-checkout__cardNumber').value.replace(/\s/g, ''),
+                    cardholderName: document.getElementById('form-checkout__cardholderName').value,
+                    cardExpirationMonth: expiry[0].trim(),
+                    cardExpirationYear: '20' + expiry[1].trim(),
+                    securityCode: document.getElementById('form-checkout__securityCode').value,
+                    identificationType: 'CPF',
+                    identificationNumber: document.getElementById('form-checkout__identificationNumber').value.replace(/\D/g, '')
+                });
+
+                // 2. Identifica a bandeira do cartão (Visa, Master, etc.) automaticamente
+                const paymentMethods = await mp.getPaymentMethods({ bin: cardToken.id.substring(0, 6) });
+                const paymentMethodId = paymentMethods.results[0].id;
+                const issuerId = paymentMethods.results[0].issuer.id;
+
+                // 3. Envia o token gerado e os dados do comprador para o seu backend
+                const response = await fetch('http://localhost:3000/api/process-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: cardToken.id,
+                        issuer_id: issuerId,
+                        payment_method_id: paymentMethodId,
+                        transaction_amount: 50.00,
+                        installments: 1,
+                        description: 'Compra de teste App de Pagamentos',
+                        payer: {
+                            email: document.getElementById('form-checkout__cardholderEmail').value,
+                            identification: {
+                                type: 'CPF',
+                                number: document.getElementById('form-checkout__identificationNumber').value.replace(/\D/g, '')
+                            }
+                        }
+                    })
+                });
+
+                const paymentResult = await response.json();
+                
+                if (paymentResult.status === 'approved') {
+                    alert('Pagamento aprovado com sucesso! ID: ' + paymentResult.id);
+                } else {
+                    alert('Falha no pagamento: ' + paymentResult.status_detail);
+                }
+
+            } catch (error) {
+                console.error('Erro no fluxo de pagamento:', error);
+                alert('Ocorreu um erro ao processar o seu cartão.');
+            }
+        });
+    </script>
+</body>
+</html>
