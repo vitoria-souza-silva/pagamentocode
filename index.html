@@ -2,172 +2,189 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>DermaCare - Produtos Dermatológicos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermaCare Luxury | Checkout</title>
+    <!-- SDK Mercado Pago e Google Fonts -->
     <script src="https://mercadopago.com"></script>
+    <link href="https://googleapis.com" rel="stylesheet">
+    
     <style>
-        :root { --primary: #2d6a4f; --accent: #d8f3dc; --text: #1b4332; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; margin: 0; padding: 20px; color: var(--text); }
-        .container { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        @media(max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        :root {
+            --bg: #fdfbfc;
+            --surface: #ffffff;
+            --primary: #1e4632;
+            --primary-light: #e8f0ec;
+            --accent: #bfa18f;
+            --text: #2b3930;
+            --text-muted: #738276;
+            --border: #e4e9e5;
+            --radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 40px 20px; }
         
-        /* Seção do Catálogo */
-        .catalog { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .product-card { border: 2px solid #eaeaea; padding: 15px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: all 0.2s; }
-        .product-card:hover { border-color: var(--primary); background: #fafdfb; }
-        .product-card.selected { border-color: var(--primary); background: var(--accent); }
-        .price { font-weight: bold; color: var(--primary); font-size: 1.2em; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { color: var(--primary); font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+        .header p { color: var(--text-muted); font-size: 0.95rem; margin-top: 8px; }
+
+        .container { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
+        /* Vitrine de Produtos */
+        .catalog-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .product-list { display: flex; flex-direction: column; gap: 16px; }
         
-        /* Seção do Checkout */
-        .checkout-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); height: fit-content; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 6px; font-size: 0.9em; font-weight: 600; }
-        input { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; }
-        input:focus { border-color: var(--primary); outline: none; }
-        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #1b4332; }
+        .product-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .product-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(30,70,50,0.06); border-color: var(--primary); }
+        .product-card.selected { border: 2px solid var(--primary); background: var(--primary-light); }
+        
+        .product-img { width: 90px; height: 90px; border-radius: 12px; object-fit: cover; background: #f0f0f0; }
+        .product-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .product-badge { position: absolute; top: 16px; right: 16px; background: var(--accent); color: white; font-size: 0.75rem; padding: 4px 8px; border-radius: 20px; font-weight: 600; }
+        .product-name { font-size: 1rem; font-weight: 600; margin-bottom: 4px; padding-right: 60px; }
+        .product-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+        .product-price { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+
+        /* Checkout Form */
+        .checkout-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.02); height: fit-content; }
+        .form-row { display: flex; gap: 16px; }
+        .form-group { margin-bottom: 20px; flex: 1; }
+        
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px; }
+        input { width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.95rem; color: var(--text); background: #fafafa; transition: all 0.2s; }
+        input:focus { background: var(--surface); border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(30,70,50,0.1); }
+        
+        /* Botão com Animação */
+        button {
+            width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        button:hover { background: #132e21; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(30,70,50,0.2); }
+        button:disabled { background: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Selos de segurança */
+        .security-badges { display: flex; justify-content: center; gap: 20px; margin-top: 20px; font-size: 0.75rem; color: var(--text-muted); }
+        .security-badges span { display: flex; align-items: center; gap: 4px; }
     </style>
 </head>
 <body>
 
-<h1 style="text-align: center; color: var(--primary);">✨ DermaCare E-Commerce ✨</h1>
-<p style="text-align: center; margin-bottom: 40px;">Selecione o produto prescrito pelo seu dermatologista e finalize o pagamento de forma segura.</p>
+<div class="header">
+    <h1>DERMACARE LUXE</h1>
+    <p>Ambiente de Pagamento Clínico Criptografado e Seguro</p>
+</div>
 
 <div class="container">
-    <!-- Esquerda: Vitrine de Produtos -->
-    <div class="catalog">
-        <h3>1. Selecione o Produto</h3>
-        
-        <div class="product-card selected" onclick="selectProduct('prod-001', 94.90, this)">
-            <h4>La Roche-Posay Anthelios UVMune 400</h4>
-            <p>Protetor solar fluido invisível SPF 60 - 50ml</p>
-            <span class="price">R$ 94,90</span>
-        </div>
+    <!-- Vitrine de Produtos Realistas -->
+    <div>
+        <div class="catalog-title">🛍️ Sacola de Tratamento</div>
+        <div class="product-list">
+            <div class="product-card selected" onclick="selectProduct('prod-001', 94.90, this)">
+                <span class="product-badge">Mais Prescrito</span>
+                <img src="https://unsplash.com" class="product-img" alt="Protetor">
+                <div class="product-info">
+                    <div class="product-name">Anthelios UVMune 400 SPF 60</div>
+                    <div class="product-desc">La Roche-Posay • Fluido Invisível de Alta Proteção Uva/Uvb</div>
+                    <div class="product-price">R$ 94,90</div>
+                </div>
+            </div>
 
-        <div class="product-card" onclick="selectProduct('prod-002', 69.90, this)">
-            <h4>CeraVe Gel de Limpeza Facial</h4>
-            <p>Controle de oleosidade e barreira cutânea - 150g</p>
-            <span class="price">R$ 69,90</span>
-        </div>
+            <div class="product-card" onclick="selectProduct('prod-002', 69.90, this)">
+                <img src="https://unsplash.com" class="product-img" alt="Gel">
+                <div class="product-info">
+                    <div class="product-name">Gel de Limpeza Facial CeraVe</div>
+                    <div class="product-desc">CeraVe • Controle de Oleosidade com Ceramidas Essenciais</div>
+                    <div class="product-price">R$ 69,90</div>
+                </div>
+            </div>
 
-        <div class="product-card" onclick="selectProduct('prod-003', 149.90, this)">
-            <h4>Vichy Minéral 89</h4>
-            <p>Sérum fortalecedor e hidratante facial diário - 50ml</p>
-            <span class="price">R$ 149,90</span>
+            <div class="product-card" onclick="selectProduct('prod-003', 149.90, this)">
+                <span class="product-badge">Premium</span>
+                <img src="https://unsplash.com" class="product-img" alt="Serum">
+                <div class="product-info">
+                    <div class="product-name">Sérum Fortalecedor Minéral 89</div>
+                    <div class="product-desc">Vichy • Booster Hidratante Diário com Ácido Hialurônico</div>
+                    <div class="product-price">R$ 149,90</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Direita: Checkout Transparente -->
+    <!-- Formulário Estilo Checkout Checkout Invisible -->
     <div class="checkout-box">
-        <h3>2. Pagamento Seguro</h3>
+        <div class="catalog-title">💳 Dados do Pagamento</div>
         <form id="form-checkout">
             <div class="form-group">
                 <label for="cardNumber">Número do Cartão</label>
-                <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" required />
+                <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" required />
             </div>
-            <div class="form-group" style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
+            
+            <div class="form-row">
+                <div class="form-group">
                     <label for="expirationDate">Vencimento</label>
-                    <input type="text" id="expirationDate" placeholder="MM/AA" required />
+                    <input type="text" id="expirationDate" placeholder="MM/AA" maxlength="5" required />
                 </div>
-                <div style="flex: 1;">
+                <div class="form-group">
                     <label for="securityCode">CVC</label>
-                    <input type="text" id="securityCode" placeholder="123" required />
+                    <input type="text" id="securityCode" placeholder="123" maxlength="4" required />
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="cardholderName">Nome impresso no Cartão</label>
-                <input type="text" id="cardholderName" placeholder="NOME DO CLIENTE" required />
-            </div>
-            <div class="form-group">
-                <label for="cardholderEmail">E-mail para envio da Nota Fiscal</label>
-                <input type="email" id="cardholderEmail" placeholder="cliente@email.com" required />
-            </div>
-            <div class="form-group">
-                <label for="identificationNumber">CPF do Titular</label>
-                <input type="text" id="identificationNumber" placeholder="000.000.000-00" required />
             </div>
 
-            <button type="submit" id="submitBtn">Pagar R$ 94,90</button>
+            <div class="form-group">
+                <label for="cardholderName">Nome do Titular (igual no cartão)</label>
+                <input type="text" id="cardholderName" placeholder="E.g. MARIA S SILVA" required />
+            </div>
+
+            <div class="form-group">
+                <label for="cardholderEmail">E-mail para Confirmação</label>
+                <input type="email" id="cardholderEmail" placeholder="seu-email@provedor.com" required />
+            </div>
+
+            <div class="form-group">
+                <label for="identificationNumber">CPF do Titular</label>
+                <input type="text" id="identificationNumber" placeholder="000.000.000-00" maxlength="14" required />
+            </div>
+
+            <button type="submit" id="submitBtn">
+                <div class="spinner" id="btnSpinner"></div>
+                <span id="btnText">Finalizar Compra • R$ 94,90</span>
+            </button>
         </form>
+
+        <div class="security-badges">
+            <span>🔒 SSL Criptografado</span>
+            <span>🛡️ PCI-DSS Compliant</span>
+            <span>🇧🇷 Checkout Mercado Pago</span>
+        </div>
     </div>
 </div>
 
 <script>
-    // Inicialize com sua chave pública de testes do Mercado Pago
+    // Configurações Globais do Checkout Transparente
     const mp = new MercadoPago('SUA_PUBLIC_KEY_DO_MERCADO_PAGO');
-    
     let selectedProductId = 'prod-001';
     let selectedProductPrice = 94.90;
 
-    function selectProduct(id, price, element) {
-        selectedProductId = id;
-        selectedProductPrice = price;
-        
-        // Atualiza a seleção visual
-        document.querySelectorAll('.product-card').forEach(card => card.classList.remove('selected'));
-        element.classList.add('selected');
-        
-        // Atualiza o texto do botão de pagamento
-        document.getElementById('submitBtn').innerText = `Pagar R$ ${price.toFixed(2).replace('.', ',')}`;
-    }
-
-    document.getElementById('form-checkout').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        document.getElementById('submitBtn').disabled = true;
-        document.getElementById('submitBtn').innerText = "Processando tratamento...";
-
-        const expiry = document.getElementById('expirationDate').value.split('/');
-
-        try {
-            // Gerando Token do Cartão via API do Mercado Pago
-            const cardToken = await mp.createCardToken({
-                cardNumber: document.getElementById('cardNumber').value.replace(/\s/g, ''),
-                cardholderName: document.getElementById('cardholderName').value,
-                cardExpirationMonth: expiry[0].trim(),
-                cardExpirationYear: '20' + expiry[1].trim(),
-                securityCode: document.getElementById('securityCode').value,
-                identificationType: 'CPF',
-                identificationNumber: document.getElementById('identificationNumber').value.replace(/\D/g, '')
-            });
-
-            const paymentMethods = await mp.getPaymentMethods({ bin: cardToken.id.substring(0, 6) });
-            const paymentMethodId = paymentMethods.results[0].id;
-            const issuerId = paymentMethods.results[0].issuer.id;
-
-            // Enviando para nosso servidor focado em dermo
-            const response = await fetch('http://localhost:3000/api/process-dermo-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    token: cardToken.id,
-                    issuer_id: issuerId,
-                    payment_method_id: paymentMethodId,
-                    productId: selectedProductId,
-                    payer: {
-                        email: document.getElementById('cardholderEmail').value,
-                        identification: {
-                            type: 'CPF',
-                            number: document.getElementById('identificationNumber').value.replace(/\D/g, '')
-                        }
-                    }
-                })
-            });
-
-            const result = await response.json();
-            
-            if (result.status === 'approved') {
-                alert(`Sucesso! Seu ${result.productName} foi pago. Preparando envio!`);
-            } else {
-                alert(`Erro no pagamento: ${result.status_detail}`);
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Falha na comunicação com a operadora de cartão.');
-        } finally {
-            document.getElementById('submitBtn').disabled = false;
-            document.getElementById('submitBtn').innerText = `Pagar R$ ${selectedProductPrice.toFixed(2).replace('.', ',')}`;
-        }
+    // Máscaras Dinâmicas Reais nos Inputs para UX Fluida
+    document.getElementById('cardNumber').addEventListener('input', e => {
+        e.target.value = e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
     });
-</script>
-</body>
-</html>
+    document.getElementById('expirationDate').addEventListener('input', e => {
+        e.target.value = e.target.value.replace(/\D/g, '').replace(/^(\d{2})(\d)/, '$1/$2');
+    });
+    document.getElementById('identificationNumber').addEventListener('input', e => {
+        e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
