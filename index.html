@@ -2,116 +2,172 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Checkout Transparente</title>
+    <title>DermaCare - Produtos Dermatológicos</title>
     <script src="https://mercadopago.com"></script>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        :root { --primary: #2d6a4f; --accent: #d8f3dc; --text: #1b4332; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; margin: 0; padding: 20px; color: var(--text); }
+        .container { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media(max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        
+        /* Seção do Catálogo */
+        .catalog { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .product-card { border: 2px solid #eaeaea; padding: 15px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: all 0.2s; }
+        .product-card:hover { border-color: var(--primary); background: #fafdfb; }
+        .product-card.selected { border-color: var(--primary); background: var(--accent); }
+        .price { font-weight: bold; color: var(--primary); font-size: 1.2em; }
+        
+        /* Seção do Checkout */
+        .checkout-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); height: fit-content; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select, button { width: 100%; padding: 10px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; }
-        button { background-color: #009ee3; color: white; border: none; font-size: 16px; cursor: pointer; }
-        button:hover { background-color: #007eb5; }
+        label { display: block; margin-bottom: 6px; font-size: 0.9em; font-weight: 600; }
+        input { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; }
+        input:focus { border-color: var(--primary); outline: none; }
+        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #1b4332; }
     </style>
 </head>
 <body>
 
-    <h2>Finalizar Pagamento</h2>
-    <form id="form-checkout">
-        <div class="form-group">
-            <label for="form-checkout__cardNumber">Número do Cartão</label>
-            <input type="text" id="form-checkout__cardNumber" placeholder="0000 0000 0000 0000" required />
-        </div>
-        <div class="form-group">
-            <label for="form-checkout__expirationDate">Vencimento (MM/AA)</label>
-            <input type="text" id="form-checkout__expirationDate" placeholder="MM/AA" required />
-        </div>
-        <div class="form-group">
-            <label for="form-checkout__securityCode">Código de Segurança (CVC)</label>
-            <input type="text" id="form-checkout__securityCode" placeholder="123" required />
-        </div>
-        <div class="form-group">
-            <label for="form-checkout__cardholderName">Nome no Cartão</label>
-            <input type="text" id="form-checkout__cardholderName" placeholder="João Silva" required/>
-        </div>
-        <div class="form-group">
-            <label for="form-checkout__cardholderEmail">E-mail</label>
-            <input type="email" id="form-checkout__cardholderEmail" placeholder="joao@email.com" required />
-        </div>
-        <div class="form-group">
-            <label for="form-checkout__identificationNumber">CPF</label>
-            <input type="text" id="form-checkout__identificationNumber" placeholder="000.000.000-00" required />
-        </div>
+<h1 style="text-align: center; color: var(--primary);">✨ DermaCare E-Commerce ✨</h1>
+<p style="text-align: center; margin-bottom: 40px;">Selecione o produto prescrito pelo seu dermatologista e finalize o pagamento de forma segura.</p>
+
+<div class="container">
+    <!-- Esquerda: Vitrine de Produtos -->
+    <div class="catalog">
+        <h3>1. Selecione o Produto</h3>
         
-        <!-- Campos ocultos preenchidos dinamicamente pelo SDK -->
-        <input type="hidden" id="form-checkout__installments" value="1" />
-        <input type="hidden" id="form-checkout__paymentMethodId" />
-        <input type="hidden" id="form-checkout__issuerId" />
+        <div class="product-card selected" onclick="selectProduct('prod-001', 94.90, this)">
+            <h4>La Roche-Posay Anthelios UVMune 400</h4>
+            <p>Protetor solar fluido invisível SPF 60 - 50ml</p>
+            <span class="price">R$ 94,90</span>
+        </div>
 
-        <button type="submit" id="form-checkout__submit">Pagar R$ 50,00</button>
-    </form>
+        <div class="product-card" onclick="selectProduct('prod-002', 69.90, this)">
+            <h4>CeraVe Gel de Limpeza Facial</h4>
+            <p>Controle de oleosidade e barreira cutânea - 150g</p>
+            <span class="price">R$ 69,90</span>
+        </div>
 
-    <script>
-        // Substitua pela sua Chave Pública (Public Key) do Mercado Pago
-        const mp = new MercadoPago('SUA_PUBLIC_KEY_DO_MERCADO_PAGO');
+        <div class="product-card" onclick="selectProduct('prod-003', 149.90, this)">
+            <h4>Vichy Minéral 89</h4>
+            <p>Sérum fortalecedor e hidratante facial diário - 50ml</p>
+            <span class="price">R$ 149,90</span>
+        </div>
+    </div>
 
-        const formElement = document.getElementById('form-checkout');
+    <!-- Direita: Checkout Transparente -->
+    <div class="checkout-box">
+        <h3>2. Pagamento Seguro</h3>
+        <form id="form-checkout">
+            <div class="form-group">
+                <label for="cardNumber">Número do Cartão</label>
+                <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" required />
+            </div>
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label for="expirationDate">Vencimento</label>
+                    <input type="text" id="expirationDate" placeholder="MM/AA" required />
+                </div>
+                <div style="flex: 1;">
+                    <label for="securityCode">CVC</label>
+                    <input type="text" id="securityCode" placeholder="123" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="cardholderName">Nome impresso no Cartão</label>
+                <input type="text" id="cardholderName" placeholder="NOME DO CLIENTE" required />
+            </div>
+            <div class="form-group">
+                <label for="cardholderEmail">E-mail para envio da Nota Fiscal</label>
+                <input type="email" id="cardholderEmail" placeholder="cliente@email.com" required />
+            </div>
+            <div class="form-group">
+                <label for="identificationNumber">CPF do Titular</label>
+                <input type="text" id="identificationNumber" placeholder="000.000.000-00" required />
+            </div>
 
-        formElement.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const expiry = document.getElementById('form-checkout__expirationDate').value.split('/');
+            <button type="submit" id="submitBtn">Pagar R$ 94,90</button>
+        </form>
+    </div>
+</div>
 
-            try {
-                // 1. Cria o token do cartão de forma segura com o SDK do Mercado Pago
-                const cardToken = await mp.createCardToken({
-                    cardNumber: document.getElementById('form-checkout__cardNumber').value.replace(/\s/g, ''),
-                    cardholderName: document.getElementById('form-checkout__cardholderName').value,
-                    cardExpirationMonth: expiry[0].trim(),
-                    cardExpirationYear: '20' + expiry[1].trim(),
-                    securityCode: document.getElementById('form-checkout__securityCode').value,
-                    identificationType: 'CPF',
-                    identificationNumber: document.getElementById('form-checkout__identificationNumber').value.replace(/\D/g, '')
-                });
+<script>
+    // Inicialize com sua chave pública de testes do Mercado Pago
+    const mp = new MercadoPago('SUA_PUBLIC_KEY_DO_MERCADO_PAGO');
+    
+    let selectedProductId = 'prod-001';
+    let selectedProductPrice = 94.90;
 
-                // 2. Identifica a bandeira do cartão (Visa, Master, etc.) automaticamente
-                const paymentMethods = await mp.getPaymentMethods({ bin: cardToken.id.substring(0, 6) });
-                const paymentMethodId = paymentMethods.results[0].id;
-                const issuerId = paymentMethods.results[0].issuer.id;
+    function selectProduct(id, price, element) {
+        selectedProductId = id;
+        selectedProductPrice = price;
+        
+        // Atualiza a seleção visual
+        document.querySelectorAll('.product-card').forEach(card => card.classList.remove('selected'));
+        element.classList.add('selected');
+        
+        // Atualiza o texto do botão de pagamento
+        document.getElementById('submitBtn').innerText = `Pagar R$ ${price.toFixed(2).replace('.', ',')}`;
+    }
 
-                // 3. Envia o token gerado e os dados do comprador para o seu backend
-                const response = await fetch('http://localhost:3000/api/process-payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        token: cardToken.id,
-                        issuer_id: issuerId,
-                        payment_method_id: paymentMethodId,
-                        transaction_amount: 50.00,
-                        installments: 1,
-                        description: 'Compra de teste App de Pagamentos',
-                        payer: {
-                            email: document.getElementById('form-checkout__cardholderEmail').value,
-                            identification: {
-                                type: 'CPF',
-                                number: document.getElementById('form-checkout__identificationNumber').value.replace(/\D/g, '')
-                            }
+    document.getElementById('form-checkout').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').innerText = "Processando tratamento...";
+
+        const expiry = document.getElementById('expirationDate').value.split('/');
+
+        try {
+            // Gerando Token do Cartão via API do Mercado Pago
+            const cardToken = await mp.createCardToken({
+                cardNumber: document.getElementById('cardNumber').value.replace(/\s/g, ''),
+                cardholderName: document.getElementById('cardholderName').value,
+                cardExpirationMonth: expiry[0].trim(),
+                cardExpirationYear: '20' + expiry[1].trim(),
+                securityCode: document.getElementById('securityCode').value,
+                identificationType: 'CPF',
+                identificationNumber: document.getElementById('identificationNumber').value.replace(/\D/g, '')
+            });
+
+            const paymentMethods = await mp.getPaymentMethods({ bin: cardToken.id.substring(0, 6) });
+            const paymentMethodId = paymentMethods.results[0].id;
+            const issuerId = paymentMethods.results[0].issuer.id;
+
+            // Enviando para nosso servidor focado em dermo
+            const response = await fetch('http://localhost:3000/api/process-dermo-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: cardToken.id,
+                    issuer_id: issuerId,
+                    payment_method_id: paymentMethodId,
+                    productId: selectedProductId,
+                    payer: {
+                        email: document.getElementById('cardholderEmail').value,
+                        identification: {
+                            type: 'CPF',
+                            number: document.getElementById('identificationNumber').value.replace(/\D/g, '')
                         }
-                    })
-                });
+                    }
+                })
+            });
 
-                const paymentResult = await response.json();
-                
-                if (paymentResult.status === 'approved') {
-                    alert('Pagamento aprovado com sucesso! ID: ' + paymentResult.id);
-                } else {
-                    alert('Falha no pagamento: ' + paymentResult.status_detail);
-                }
-
-            } catch (error) {
-                console.error('Erro no fluxo de pagamento:', error);
-                alert('Ocorreu um erro ao processar o seu cartão.');
+            const result = await response.json();
+            
+            if (result.status === 'approved') {
+                alert(`Sucesso! Seu ${result.productName} foi pago. Preparando envio!`);
+            } else {
+                alert(`Erro no pagamento: ${result.status_detail}`);
             }
-        });
-    </script>
+        } catch (err) {
+            console.error(err);
+            alert('Falha na comunicação com a operadora de cartão.');
+        } finally {
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').innerText = `Pagar R$ ${selectedProductPrice.toFixed(2).replace('.', ',')}`;
+        }
+    });
+</script>
 </body>
 </html>
